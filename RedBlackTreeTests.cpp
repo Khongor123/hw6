@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <random>
+#include <stdexcept>
 #include "RedBlackTree.h"
 
 using namespace std;
@@ -9,7 +10,6 @@ using namespace std;
 void TestSimpleConstructor(){
 	cout << "Testing Simple Constructor... " << endl;
 	RedBlackTree rbt = RedBlackTree();
-	//cout << "empty r-b-tree: " << rbt.ToInfixString() << endl;
 	assert(rbt.ToInfixString() == "");
 	
 	cout << "PASSED!"<< endl << endl;
@@ -27,7 +27,6 @@ void TestInsertFirstNode(){
 	cout << "Testing Insert One Node..." << endl;
 	RedBlackTree rbt = RedBlackTree();
 	rbt.Insert(30);
-	//cout << "rbt: " << rbt.ToPrefixString() << endl;
 	assert(rbt.ToPrefixString() == " B30 ");
 
 	cout << "PASSED!" << endl << endl;
@@ -57,36 +56,50 @@ void TestInsertThirdNode(){
 	RedBlackTree *rbt = new RedBlackTree();
 	rbt->Insert(30);
 	rbt->Insert(15);
-	rbt->Insert(10); // Left Left
-	//cout << "rbt: "  << rbt->ToPrefixString() << endl;
+	rbt->Insert(10); // left-left
 	assert(rbt->ToPrefixString() == " B15  R10  R30 ");
 	delete rbt;
 	
 	rbt = new RedBlackTree(); 
 	rbt->Insert(30);
 	rbt->Insert(15);
-	rbt->Insert(25); // Right Left
+	rbt->Insert(25); // left-right
 	assert(rbt->ToPrefixString() == " B25  R15  R30 ");
 	delete rbt;
 	
 	rbt = new RedBlackTree();
 	rbt->Insert(30);
 	rbt->Insert(15);
-	rbt->Insert(45); // Easy case
+	rbt->Insert(45); // no rotation
 	assert(rbt->ToPrefixString() == " B30  R15  R45 ");
 	delete rbt;
 	
-	// more tests go here
-	// consider some symmetry!
-	
-	cout << "TESTS MISSING" << endl << endl;
+	rbt = new RedBlackTree();
+	rbt->Insert(10);
+	rbt->Insert(30);
+	rbt->Insert(20); // right-left
+	assert(rbt->ToPrefixString() == " B20  R10  R30 ");
+	delete rbt;
+
+	rbt = new RedBlackTree();
+	rbt->Insert(10);
+	rbt->Insert(20);
+	rbt->Insert(30); // right-right
+	assert(rbt->ToPrefixString() == " B20  R10  R30 ");
+	delete rbt;
+
 	cout << "PASSED!" << endl << endl;
 }
 
 void TestInsertFourthNode(){
 	cout << "Testing Insert Fourth Node..." << endl;
 
-	cout << "TESTS MISSING" << endl << endl;
+	RedBlackTree rbt;
+	rbt.Insert(30);
+	rbt.Insert(15);
+	rbt.Insert(45);
+	rbt.Insert(10);
+	assert(rbt.ToPrefixString() == " B30  B15  R10  B45 ");
 	
 	cout << "PASSED!" << endl << endl;
 }
@@ -99,12 +112,33 @@ void TestInsertFifthNode(){
 	rbt->Insert(45);
 	rbt->Insert(10);
 	rbt->Insert(25);
-	//cout << "result: "  << rbt->ToPrefixString() << endl;
 	assert(rbt->ToPrefixString() == " B30  B15  R10  R25  B45 ");
 	delete rbt;
 	
-	cout << "TESTS MISSING" << endl << endl;
+	rbt = new RedBlackTree();
+	rbt->Insert(30);
+	rbt->Insert(15);
+	rbt->Insert(45);
+	rbt->Insert(50);
+	rbt->Insert(60);
+	assert(rbt->ToPrefixString() == " B30  B15  B50  R45  R60 ");
+	delete rbt;
 	
+	cout << "PASSED!" << endl << endl;
+}
+
+void TestDuplicateInsert(){
+	cout << "Testing Duplicate Insert..." << endl;
+
+	RedBlackTree rbt;
+	rbt.Insert(30);
+	rbt.Insert(15);
+	bool threw = false;
+	try { rbt.Insert(15); } catch (const invalid_argument&) { threw = true; }
+	assert(threw);
+	assert(rbt.Size() == 2);
+	assert(rbt.ToPrefixString() == " B30  R15 ");
+
 	cout << "PASSED!" << endl << endl;
 }
 
@@ -136,36 +170,23 @@ void TestInsertRandomTests(){
 	rbt->Insert(20);
 	rbt->Insert(12);
 	cout << endl;
-	//cout << "tree: " << rbt->ToInfixString() << endl;
 	delete rbt;
 	
 	
-	// probably should have a delete or something here
 	rbt = new RedBlackTree();
-	//cout << endl << "NEW TREE" << endl;
 	rbt->Insert(12);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	rbt->Insert(11);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	rbt->Insert(15);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	rbt->Insert(5);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	rbt->Insert(13);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	rbt->Insert(7);
-	//cout << "tree: "  << rbt->ToInfixString() << endl;
 	delete rbt;
 	
 	
 	rbt = new RedBlackTree();
-	//cout << endl << "NEW TREE" << endl;
 	rbt->Insert(12);
-	//cout << "tree: "  << rbt->ToPrefixString() << endl;
 	rbt->Insert(10);
-	//cout << "tree: "  << rbt->ToPrefixString() << endl;
 	rbt->Insert(8);
-	//cout << "tree: "  << rbt->ToPrefixString() << endl;
 	delete rbt;
 	
 	cout << "PASSED!" << endl << endl;
@@ -218,10 +239,11 @@ void TestContains(){
 	rbt->Insert(34);
 	
 	assert(rbt->Contains(34));
+	assert(rbt->Contains(40));
+	assert(rbt->Contains(12));
+	assert(rbt->Contains(33) == false);
 	delete rbt;
 
-	
-	cout << "TESTS MISSING" << endl << endl;
 	cout << "PASSED!" << endl << endl;
 }
 
@@ -231,7 +253,38 @@ void TestContains(){
 void TestGetMinimumMaximum(){
 	cout << "Testing Get Minimum and Get Maximum..." << endl;
 
-	cout << "TESTS MISSING" << endl << endl;
+	RedBlackTree rbt;
+	bool minThrew = false;
+	bool maxThrew = false;
+	try { rbt.GetMin(); } catch (const out_of_range&) { minThrew = true; }
+	try { rbt.GetMax(); } catch (const out_of_range&) { maxThrew = true; }
+	assert(minThrew && maxThrew);
+
+	rbt.Insert(40);
+	assert(rbt.GetMin() == 40);
+	assert(rbt.GetMax() == 40);
+	rbt.Insert(20);
+	rbt.Insert(60);
+	rbt.Insert(10);
+	rbt.Insert(70);
+	assert(rbt.GetMin() == 10);
+	assert(rbt.GetMax() == 70);
+
+	cout << "PASSED!" << endl << endl;
+}
+
+void TestSize(){
+	cout << "Testing Size..." << endl;
+
+	RedBlackTree rbt;
+	assert(rbt.Size() == 0);
+	rbt.Insert(40);
+	assert(rbt.Size() == 1);
+	rbt.Insert(20);
+	rbt.Insert(60);
+	assert(rbt.Size() == 3);
+	RedBlackTree copy(rbt);
+	assert(copy.Size() == 3);
 
 	cout << "PASSED!" << endl << endl;
 }
@@ -251,6 +304,7 @@ int main(){
 	TestInsertThirdNode();
 	TestInsertFourthNode();
 	TestInsertFifthNode();
+	TestDuplicateInsert();
 
 	TestToStrings();
 	TestInsertRandomTests();
@@ -259,6 +313,7 @@ int main(){
 
 	TestContains();
 	TestGetMinimumMaximum();
+	TestSize();
 
 	
 	cout << "ALL TESTS PASSED!!" << endl;

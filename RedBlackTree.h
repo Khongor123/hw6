@@ -32,6 +32,12 @@ public:
     std::string ToPostfixString() const { return ToPostfixString(root); }
 
 private:
+    static RBTNode *CloneSubtree(const RBTNode *n, RBTNode *parent);
+
+    void RotateLeft(RBTNode *n);
+    void RotateRight(RBTNode *n);
+    void FixInsert(RBTNode *n);
+
     std::string ToInfixString(RBTNode *n) const;
     std::string ToPrefixString(RBTNode *n) const;
     std::string ToPostfixString(RBTNode *n) const;

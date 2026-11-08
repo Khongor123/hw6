@@ -1,11 +1,11 @@
-all: rbt-tests-first-step
+all: rbt-tests
 
-rbt-tests-first-step: RedBlackTree.cpp RedBlackTree.h RedBlackTreeTestsFirstStep.cpp
-	g++ -std=c++17 -Wall -Wextra -g RedBlackTree.cpp RedBlackTreeTestsFirstStep.cpp -o rbt-tests-first-step
+rbt-tests: RedBlackTree.cpp RedBlackTree.h RedBlackTreeTests.cpp
+	g++ -std=c++17 -Wall -Wextra -g RedBlackTree.cpp RedBlackTreeTests.cpp -o rbt-tests
 
-test: rbt-tests-first-step
-	./rbt-tests-first-step
+test: rbt-tests
+	./rbt-tests
 
 clean:
-	rm -f rbt-tests-first-step
-	rm -rf rbt-tests-first-step.dSYM
+	rm -f rbt-tests
+	rm -rf rbt-tests.dSYM
