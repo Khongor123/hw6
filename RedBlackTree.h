@@ -32,6 +32,7 @@ public:
     std::string ToPostfixString() const { return ToPostfixString(root); }
 
 private:
+    friend void TestLargeTreeAndInvariants();
     static RBTNode *CloneSubtree(const RBTNode *n, RBTNode *parent);
 
     void RotateLeft(RBTNode *n);

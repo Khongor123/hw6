@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cassert>
 #include <random>
+#include <algorithm>
+#include <vector>
 #include <stdexcept>
 #include "RedBlackTree.h"
 
@@ -289,6 +291,37 @@ void TestSize(){
 	cout << "PASSED!" << endl << endl;
 }
 
+void TestLargeTreeAndInvariants(){
+	vector<int> values(1000);
+	for (int i = 0; i < 1000; ++i) values[i] = i;
+	shuffle(values.begin(), values.end(), mt19937(12345));
+
+	RedBlackTree rbt;
+	for (int value : values) rbt.Insert(value);
+	assert(rbt.Size() == 1000);
+	assert(rbt.GetMin() == 0 && rbt.GetMax() == 999);
+	for (int value : values) assert(rbt.Contains(value));
+	assert(!rbt.Contains(-1) && !rbt.Contains(1000));
+	assert(rbt.root != nullptr && rbt.root->color == COLOR_BLACK);
+
+	auto check = [&](auto&& self, RBTNode* node, int lower, int upper) -> int {
+		if (node == nullptr) return 1;
+		assert(lower < node->value && node->value < upper);
+		assert(node->color == COLOR_RED || node->color == COLOR_BLACK);
+		if (node->left != nullptr) assert(node->left->parent == node);
+		if (node->right != nullptr) assert(node->right->parent == node);
+		if (node->color == COLOR_RED) {
+			assert(node->left == nullptr || node->left->color == COLOR_BLACK);
+			assert(node->right == nullptr || node->right->color == COLOR_BLACK);
+		}
+		int left = self(self, node->left, lower, node->value);
+		int right = self(self, node->right, node->value, upper);
+		assert(left == right);
+		return left + (node->color == COLOR_BLACK);
+	};
+	check(check, rbt.root, -1, 1000);
+}
+
 
 
 
@@ -314,6 +347,7 @@ int main(){
 	TestContains();
 	TestGetMinimumMaximum();
 	TestSize();
+	TestLargeTreeAndInvariants();
 
 	
 	cout << "ALL TESTS PASSED!!" << endl;
